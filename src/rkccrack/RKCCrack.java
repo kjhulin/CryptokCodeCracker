@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.MappedByteBuffer;
@@ -554,7 +555,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
         static long[] counts;
         static DecimalFormat df = new DecimalFormat("0.0000");
         static String corpus = "corpus"; //Directory where corpus is located (currently set to look in working directory
-        static URL wordlistfile = CodeCracker.class.getResource("/words.txt");
+        static String wordlistfile = "/res/words.txt";
         static boolean findSpaces = false;
         
         static PrintString ps = PrintString.STANDARD_OUT;
@@ -625,9 +626,9 @@ public class RKCCrack extends JPanel implements ComponentListener{
             initDone = true;
         }
         
-        public static void loadWordList(URL wl) throws FileNotFoundException, IOException, URISyntaxException{
+        public static void loadWordList(String wl) throws FileNotFoundException, IOException, URISyntaxException{
             
-            BufferedReader br = new BufferedReader(new FileReader(new File(wl.toURI())));//wl.openStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(CodeCracker.class.getResourceAsStream(wl)));//wl.openStream());
             String line;
             while((line = br.readLine()) != null){
                 wordlist.add(line);
@@ -814,6 +815,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
             boolean match = true;
             boolean ignoreOrder = false;
             int t = 0;
+			@SuppressWarnings("unchecked")
             ArrayList<Pair<byte[],Double>>[] topN = new ArrayList[ciph.length - wordsize + 1];
             for(int i = 0; i < topN.length; i++){
                 topN[i] = new ArrayList<Pair<byte[],Double>>();
@@ -849,7 +851,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
                     if(topN[i].size() > Math.max(NUM_NGRAMS_PER,100000)){
                         System.out.println("[gc] ngramsearch");
                         Collections.sort(topN[i]);
-                        topN[i] = new ArrayList(topN[i]
+                        topN[i] = new ArrayList<>(topN[i]
                                 .subList(topN[i].size() - NUM_NGRAMS_PER,
                                         topN[i].size()));
                     }
@@ -914,6 +916,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
             if(solution != null){
                 solu = RKC.scrub(solution.getBytes(),solution.length(),"_");
             }
+			@SuppressWarnings("unchecked")
             ArrayList<Pair<byte[],Pair<Integer,Double>>>[] topN = new ArrayList[MAX_WORD_LENGTH - minLength + 1];
             for(int i = 0; i < MAX_WORD_LENGTH - minLength + 1; i++){
                 topN[i] = new ArrayList<Pair<byte[],Pair<Integer,Double>>>();
@@ -930,7 +933,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
                         System.out.println("[gc] ngramsearch");
 
                         Collections.sort(topN[s.length() - minLength]);
-                        topN[s.length() - minLength] = new ArrayList(topN[s.length() - minLength]
+                        topN[s.length() - minLength] = new ArrayList<>(topN[s.length() - minLength]
                                 .subList(topN[s.length() - minLength].size() - TOP_N_WORDS,
                                         topN[s.length() - minLength].size()));
                     }
@@ -977,6 +980,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
             if(solution != null){
                 solu = RKC.scrub(solution.getBytes(),solution.length(),"_");
             }
+			@SuppressWarnings("unchecked")
             ArrayList<Pair<byte[],Double>>[] vit = new ArrayList[ciph.length];
             for(int i = 0; i < ciph.length; i++){
                 vit[i] = new ArrayList<Pair<byte[],Double>>();
@@ -1019,7 +1023,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
             ps.println(vit[startIndex].size() + " solutions learned");
             ps.println("Removing low probability solutions");
             Collections.sort(vit[startIndex]);
-            vit[startIndex] = new ArrayList(vit[startIndex].subList(Math.max(0,vit[startIndex].size() - depth - 1), vit[startIndex].size()  ));
+            vit[startIndex] = new ArrayList<>(vit[startIndex].subList(Math.max(0,vit[startIndex].size() - depth - 1), vit[startIndex].size()  ));
             ps.println("Applying Viterbi Algorithm");
             sp.setMsg("Computing MPE: ");
             sp.setMax(ciph.length);
@@ -1060,7 +1064,7 @@ public class RKCCrack extends JPanel implements ComponentListener{
                 
                 Collections.sort(vit[i]);
                 if(vit[i].size() > depth){
-                    vit[i] = new ArrayList(vit[i].subList(vit[i].size() - depth - 1, vit[i].size() ));
+                    vit[i] = new ArrayList<>(vit[i].subList(vit[i].size() - depth - 1, vit[i].size() ));
                 }
                 if(i > 0){
                     vit[i-1].clear(); //No need to keep this around since we carry state with us; Clearing to reclaim memory; consider refactoring to make vit one dimensional.
@@ -1085,13 +1089,13 @@ public class RKCCrack extends JPanel implements ComponentListener{
             
             for(int i = 0; i < ciph.length - k.length + 1; i++ ){
                 byte[] p = decode(ciph,i,k,0,k.length);
-                Pair<byte[],Pair<Integer,Double>> r = new Pair<byte[],Pair<Integer,Double>>(p,new Pair(i,(lProb(p) + lProb(k))/p.length));//+lProb(k)));
+                Pair<byte[],Pair<Integer,Double>> r = new Pair<byte[],Pair<Integer,Double>>(p,new Pair<>(i,(lProb(p) + lProb(k))/p.length));//+lProb(k)));
 
                 results.add(r);
             }
             Collections.sort(results);
             if(results.size() > n){
-                results = new ArrayList(results.subList(results.size() - n - 1, results.size() ));
+                results = new ArrayList<>(results.subList(results.size() - n - 1, results.size() ));
             }
             return results;
         }
@@ -1240,7 +1244,7 @@ class StringEnum{
     
 }
 
-class Pair<S,T extends Comparable> implements Comparable<Pair<S,T>>{
+class Pair<S,T extends Comparable<? super T>> implements Comparable<Pair<S,T>>{
     public S first;
     public T second;
     public Pair(S a, T b){

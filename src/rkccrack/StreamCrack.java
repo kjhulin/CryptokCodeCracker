@@ -15,7 +15,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import rkccrack.RKCCrack.RKC;
-import sun.misc.BASE64Decoder;
+import java.util.Base64;
 /**
  *
  * @author Kevin Hulin
@@ -407,8 +407,7 @@ public class StreamCrack extends JPanel implements ComponentListener{
         if(isBase64){
             if(depth < MAX_DECODE_DEPTH){
                 try{
-                    BASE64Decoder d = new BASE64Decoder();
-                    byte[] decodedBytes = d.decodeBuffer(s);
+                    byte[] decodedBytes = Base64.getDecoder().decode(s);
                     ret.addAll(decode(new String(decodedBytes),depth+1));
 
                 }catch(Exception e){
@@ -462,6 +461,7 @@ abstract class Cipher<T>{
     public int hashCode(){
         return cipher.hashCode();
     }
+	@SuppressWarnings("unchecked")
     public Solution solve(JTextArea ta ){
         double maxProb = Double.NEGATIVE_INFINITY;
         Solution sol = null;

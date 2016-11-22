@@ -26,7 +26,7 @@ public class CodeCracker extends JFrame{
     public CodeCracker(){
         setTitle("Cryptok Code Cracker");
         try{
-            URL icon = CodeCracker.class.getResource("/cryptok.ICO");
+            URL icon = CodeCracker.class.getResource("/res/cryptok.ICO");
             setIconImage(new ImageIcon(icon).getImage());
         }catch(Exception e){}
         setLayout(new BorderLayout());
